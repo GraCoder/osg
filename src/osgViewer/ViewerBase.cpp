@@ -637,6 +637,17 @@ void ViewerBase::checkWindowStatus(const Contexts& contexts)
     }
 }
 
+void ViewerBase::addPreUpdateOperation(osg::Operation* operation)
+{
+  if (!operation)
+    return;
+
+  if (!_preUpdateOperations)
+    _preUpdateOperations = new osg::OperationQueue;
+
+  _preUpdateOperations->add(operation);
+}
+
 void ViewerBase::addUpdateOperation(osg::Operation* operation)
 {
     if (!operation) return;
@@ -644,6 +655,18 @@ void ViewerBase::addUpdateOperation(osg::Operation* operation)
     if (!_updateOperations) _updateOperations = new osg::OperationQueue;
 
     _updateOperations->add(operation);
+}
+
+void ViewerBase::addPstUpdateOperation(osg::Operation* operation)
+{
+  if (!operation)
+    return;
+
+  if (!_pstUpdateOperations)
+    _pstUpdateOperations = new osg::OperationQueue;
+
+  _pstUpdateOperations->add(operation);
+
 }
 
 void ViewerBase::removeUpdateOperation(osg::Operation* operation)

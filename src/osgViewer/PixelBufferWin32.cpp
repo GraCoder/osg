@@ -57,7 +57,7 @@ static std::string sysError()
 }
 
 
-    static int __tempwnd_id = 0;
+static int __tempwnd_id = 0;
 class TemporaryWindow: public osg::Referenced
 {
 public:
@@ -95,13 +95,13 @@ private:
     HDC _dc;
     HGLRC _context;
     HINSTANCE _instance;
-    std::string _classname;
+    std::wstring _classname;
 };
 
 void TemporaryWindow::create()
 {
-    std::ostringstream oss;
-    oss << "tempwnd" << (++__tempwnd_id);
+    std::wostringstream oss;
+    oss << TEXT("tempwnd") << (++__tempwnd_id);
     _classname = oss.str();
 
     _instance = GetModuleHandle(0);
@@ -124,7 +124,7 @@ void TemporaryWindow::create()
 
     if (!(_handle = CreateWindowEx( 0,
                                     _classname.c_str(),
-                                    TEXT(_classname.c_str()),
+                                    _classname.c_str(),
                                     WS_POPUP,
                                     0,
                                     0,

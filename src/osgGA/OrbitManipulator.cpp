@@ -35,7 +35,7 @@ OrbitManipulator::OrbitManipulator( int flags )
      _trackballSize( 0.8 )
 {
     setMinimumDistance( 0.05, true );
-    setWheelZoomFactor( 0.1 );
+    setWheelZoomFactor( -0.1 );
     if( _flags & SET_CENTER_ON_WHEEL_FORWARD_MOVEMENT )
         setAnimationTime( 0.2 );
 }
@@ -291,18 +291,18 @@ bool OrbitManipulator::performMovementLeftMouseButton( const double eventTimeDel
 // doc in parent
 bool OrbitManipulator::performMovementMiddleMouseButton( const double eventTimeDelta, const double dx, const double dy )
 {
-    // pan model
-    float scale = -0.3f * _distance * getThrowScale( eventTimeDelta );
-    panModel( dx*scale, dy*scale );
+    // zoom model
+    zoomModel( dy * getThrowScale( eventTimeDelta ), true );
     return true;
 }
 
 
 // doc in parent
-bool OrbitManipulator::performMovementRightMouseButton( const double eventTimeDelta, const double /*dx*/, const double dy )
+bool OrbitManipulator::performMovementRightMouseButton( const double eventTimeDelta, const double dx, const double dy )
 {
-    // zoom model
-    zoomModel( dy * getThrowScale( eventTimeDelta ), true );
+    // pan model
+    float scale = -0.3f * _distance * getThrowScale( eventTimeDelta );
+    panModel( dx*scale, dy*scale );
     return true;
 }
 

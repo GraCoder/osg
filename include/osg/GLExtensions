@@ -849,6 +849,13 @@ class OSG_EXPORT GLExtensions : public osg::Referenced
         /** convenience wrapper around glObjectLabel that calls glObjectLabel if it's supported and using std::string as a label parameter.*/
         void debugObjectLabel(GLenum identifier, GLuint name, const std::string& label) const { if (glObjectLabel && !label.empty()) glObjectLabel(identifier, name, static_cast<GLsizei>(label.size()), label.c_str()); }
 
+        //
+        const GLubyte* (GL_APIENTRY* glGetStringi)(GLenum name, GLuint index);
+        void (APIENTRY *glClearBufferiv)(GLenum buffer, GLint drawbuffer, const GLint* value);
+        void (APIENTRY *glClearBufferuiv)(GLenum buffer, GLint drawbuffer, const GLuint* value);
+        void (APIENTRY *glClearBufferfv)(GLenum buffer, GLint drawbuffer, const GLfloat* value);
+        void (APIENTRY *glClearBufferfi)(GLenum buffer, GLint drawbuffer, GLfloat depth, GLint stencil);
+
         inline void glUniform(GLint location, int value) const { glUniform1i(location, value); }
         inline void glUniform(GLint location, const osg::Vec2i& value) const { glUniform2iv(location, 1, value.ptr()); }
         inline void glUniform(GLint location, const osg::Vec3i& value) const { glUniform3iv(location, 1, value.ptr()); }

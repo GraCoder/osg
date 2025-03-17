@@ -1,0 +1,53 @@
+#ifndef OSGVIEWER_IMGUIHANDLER
+#define OSGVIEWER_IMGUIHANDLER 1
+
+#include <osgViewer/Export>
+#include <osg/DisplaySettings>
+#include <osgGA/GUIEventHandler>
+
+struct ImGuiContext;
+
+namespace osgViewer {
+
+class UIRect;
+
+class OSGVIEWER_EXPORT ImGuiHandler : public osgGA::GUIEventHandler {
+public:
+  ImGuiHandler();
+
+  ~ImGuiHandler();
+
+  void setFont(const std::string fontFile);
+
+  bool handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa);
+
+public:
+
+  void setRenderData();
+
+  osg::Geode *getUiGroup(uint32_t frm);
+
+protected:
+
+  void initImGui();
+
+  void resizeViewport();
+
+  void refreshTexture();
+
+private:
+  osg::ref_ptr<osg::Camera> _camera;
+  osg::ref_ptr<osg::Operation> _begOp, _endOp;
+
+  bool _initialized;
+  int _width, _height;
+
+  ImGuiContext* _imctx = nullptr;
+
+  uint32_t _frameNum = 0;
+  osg::ref_ptr<osg::Geode> _geodes[2];
+};
+
+}  // namespace osgViewer
+
+#endif
