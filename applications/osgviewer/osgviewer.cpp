@@ -19,6 +19,7 @@
 
 #include <osgViewer/Viewer>
 #include <osgViewer/ViewerEventHandlers>
+#include <osgViewer/ImGuiHandler>
 
 #include <osgGA/TrackballManipulator>
 #include <osgGA/FlightManipulator>
@@ -33,6 +34,8 @@
 
 #include <iostream>
 
+
+#include <osgViewer/imgui/imgui.h>
 
 int main(int argc, char** argv)
 {
@@ -126,6 +129,17 @@ int main(int argc, char** argv)
         viewer.setCameraManipulator( keyswitchManipulator.get() );
     }
 
+    viewer.setThreadingModel(viewer.SingleThreaded);
+    //viewer.setThreadingModel(viewer.ThreadPerCamera);
+
+    {
+      auto handler = new osgViewer::ImGuiHandler;
+      handler->setFont("");
+	    viewer.addEventHandler(handler);
+    }
+
+    viewer.addEventHandler(new osgViewer::ToggleSyncToVBlankHandler);
+
     // add the state manipulator
     viewer.addEventHandler( new osgGA::StateSetManipulator(viewer.getCamera()->getOrCreateStateSet()) );
 
@@ -179,7 +193,33 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    osg::Group* grp = new osg::Group;
+    grp->addChild(loadedModel);
+    auto geo = new osg::Geometry;
+    grp->addChild(geo);
+    loadedModel = grp;
 
+    class xxUpdate : public osg::NodeCallback {
+    public:
+
+      void operator()(osg::Node* node, osg::NodeVisitor* nv)
+      {
+        //ImGui::SetWindowFontScale();
+        ImGui::Begin("hello \xe4\xb8\x96\xe7\x95\x8c");
+        ImGui::Text("This is some useful text.");
+        ImGui::Button("Button");
+        ImGui::SameLine();
+        ImGui::Text("counter = ");
+        ImGui::Text("Application average 3f ms/frame (1f FPS)");
+        static char ch[512];
+        if (ImGui::InputText("123", ch, 512)) {
+          printf("");
+        }
+        ImGui::End();
+      }
+    };
+
+    geo->addUpdateCallback(new xxUpdate);
     // optimize the scene graph, remove redundant nodes and state etc.
     osgUtil::Optimizer optimizer;
     optimizer.optimize(loadedModel);

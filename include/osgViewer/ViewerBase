@@ -196,7 +196,9 @@ class OSGVIEWER_EXPORT ViewerBase : public virtual osg::Object
         const osg::OperationQueue* getUpdateOperations() const { return _updateOperations.get(); }
 
         /** Add an update operation.*/
+        void addPreUpdateOperation(osg::Operation* operation);
         void addUpdateOperation(osg::Operation* operation);
+        void addPstUpdateOperation(osg::Operation* operation);
 
         /** Remove an update operation.*/
         void removeUpdateOperation(osg::Operation* operation);
@@ -355,6 +357,8 @@ protected:
         osg::ref_ptr<osgGA::EventVisitor>                   _eventVisitor;
 
         osg::ref_ptr<osg::OperationQueue>                   _updateOperations;
+        osg::ref_ptr<osg::OperationQueue>                   _preUpdateOperations;
+        osg::ref_ptr<osg::OperationQueue>                   _pstUpdateOperations;
         osg::ref_ptr<osgUtil::UpdateVisitor>                _updateVisitor;
 
         osg::ref_ptr<osg::Operation>                        _realizeOperation;

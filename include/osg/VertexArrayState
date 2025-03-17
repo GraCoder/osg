@@ -156,6 +156,7 @@ class OSG_EXPORT VertexArrayState : public osg::Referenced
         inline void disableTexCoordArrayAboveAndIncluding(osg::State& state, unsigned int index);
 
         inline void setVertexAttribArray(osg::State& state, unsigned int unit, const osg::Array* array) { setArray(_vertexAttribArrays[unit].get(), state, array); }
+        inline void setVertexAttribArray(osg::State& state, unsigned int unit, GLint size, GLenum type, GLsizei stride, const GLvoid *ptr, GLboolean normalized=GL_FALSE) { setArray(_vertexAttribArrays[unit].get(), state, size, type, stride, ptr, normalized); }
         inline void disableVertexAttribArray(osg::State& state, unsigned int unit) { disable(_vertexAttribArrays[unit].get(), state); }
         inline void disableVertexAttribArrayAboveAndIncluding(osg::State& state, unsigned int index);
 

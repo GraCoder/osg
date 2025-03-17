@@ -212,8 +212,8 @@ class Win32WindowingSystem : public osg::GraphicsContext::WindowingSystemInterfa
 {
   public:
 
-    static std::string osgGraphicsWindowWithCursorClass;    //!< Name of Win32 window class (with cursor) used by OSG graphics window instances
-    static std::string osgGraphicsWindowWithoutCursorClass; //!< Name of Win32 window class (without cursor) used by OSG graphics window instances
+    static std::wstring osgGraphicsWindowWithCursorClass;    //!< Name of Win32 window class (with cursor) used by OSG graphics window instances
+    static std::wstring osgGraphicsWindowWithoutCursorClass; //!< Name of Win32 window class (without cursor) used by OSG graphics window instances
 
     Win32WindowingSystem();
 
@@ -498,8 +498,8 @@ static LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 //              Win32WindowingSystem implementation
 //////////////////////////////////////////////////////////////////////////////
 
-std::string Win32WindowingSystem::osgGraphicsWindowWithCursorClass;
-std::string Win32WindowingSystem::osgGraphicsWindowWithoutCursorClass;
+std::wstring Win32WindowingSystem::osgGraphicsWindowWithCursorClass;
+std::wstring Win32WindowingSystem::osgGraphicsWindowWithoutCursorClass;
 
 Win32WindowingSystem::Win32WindowingSystem()
 : _windowClassesRegistered(false)
@@ -507,7 +507,7 @@ Win32WindowingSystem::Win32WindowingSystem()
     getInterface() = this;
 
     // Detect presence of runtime support for multitouch
-    HMODULE hModule = LoadLibrary("user32");
+    HMODULE hModule = LoadLibrary(TEXT("user32"));
     if (hModule)
     {
         registerTouchWindowFunc = (RegisterTouchWindowFunc *) GetProcAddress( hModule, "RegisterTouchWindow");
@@ -532,7 +532,7 @@ Win32WindowingSystem::Win32WindowingSystem()
 	//
 	// Per monitor DPI aware.This app checks for the DPI when it is created and adjusts the scale factor
 	// whenever the DPI changes.These applications are not automatically scaled by the system.
-	HMODULE hModuleShore = LoadLibrary("Shcore");
+	HMODULE hModuleShore = LoadLibrary(TEXT("Shcore"));
 	if (hModuleShore) {
 		setProcessDpiAwareness = (SetProcessDpiAwarenessFunc *) GetProcAddress(hModuleShore, "SetProcessDpiAwareness");
 		if (setProcessDpiAwareness) {
@@ -580,11 +580,11 @@ void Win32WindowingSystem::registerWindowClasses()
     // Register the window classes used by OSG GraphicsWindowWin32 instances
     //
 
-    std::ostringstream str;
-    str << "OSG Graphics Window for Win32 [" << ::GetCurrentProcessId() << "]";
+    std::wostringstream str;
+    str << TEXT("OSG Graphics Window for Win32 [") << ::GetCurrentProcessId() << "]";
 
-    osgGraphicsWindowWithCursorClass    = str.str() + "{ with cursor }";
-    osgGraphicsWindowWithoutCursorClass = str.str() + "{ without cursor }";
+    osgGraphicsWindowWithCursorClass    = str.str() + TEXT("{ with cursor }");
+    osgGraphicsWindowWithoutCursorClass = str.str() + TEXT("{ without cursor }");
 
     WNDCLASSEX wc;
 
@@ -600,7 +600,7 @@ void Win32WindowingSystem::registerWindowClasses()
     wc.cbClsExtra    = 0;
     wc.cbWndExtra    = 0;
     wc.hInstance     = hinst;
-    wc.hIcon         = ::LoadIcon(hinst, "OSG_ICON");
+    wc.hIcon         = ::LoadIcon(hinst, TEXT("OSG_ICON"));
     wc.hCursor       = ::LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = NULL;
     wc.lpszMenuName  = 0;
@@ -1137,10 +1137,11 @@ bool GraphicsWindowWin32::createWindow()
         return false;
     }
 
+    std::wstring wname(_traits->windowName.begin(), _traits->windowName.end());
     _hwnd = ::CreateWindowEx(extendedStyle,
                              _traits->useCursor ? Win32WindowingSystem::osgGraphicsWindowWithCursorClass.c_str() :
                                                   Win32WindowingSystem::osgGraphicsWindowWithoutCursorClass.c_str(),
-                             _traits->windowName.c_str(),
+                             wname.c_str(),
                              windowStyle,
                              _windowOriginXToRealize,
                              _windowOriginYToRealize,
@@ -2111,7 +2112,7 @@ bool GraphicsWindowWin32::checkEvents()
     if (!_realized) return false;
 
     MSG msg;
-    while (::PeekMessage(&msg, _hwnd, 0, 0, PM_REMOVE))
+    while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
     {
         ::TranslateMessage(&msg);
         ::DispatchMessage(&msg);
@@ -2245,7 +2246,8 @@ bool GraphicsWindowWin32::setWindowRectangleImplementation(int x, int y, int wid
 void GraphicsWindowWin32::setWindowName( const std::string & name )
 {
     _traits->windowName = name;
-    SetWindowText(_hwnd, name.c_str());
+    std::wstring wname(name.begin(), name.end());
+    SetWindowText(_hwnd, wname.c_str());
 }
 
 void GraphicsWindowWin32::useCursor( bool cursorOn )
@@ -2514,6 +2516,11 @@ void GraphicsWindowWin32::transformMouseXY( float& x, float& y )
 
 LRESULT GraphicsWindowWin32::handleNativeWindowingEvent( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
+	if (hwnd != _hwnd) {
+		::PostMessage(hwnd, uMsg, wParam, lParam);
+		return 0;
+	}
+
     //!@todo adapt windows event time to osgGA event queue time for better resolution
     double eventTime  = getEventQueue()->getTime();
     _timeOfLastCheckEvents = eventTime;
@@ -2684,6 +2691,22 @@ LRESULT GraphicsWindowWin32::handleNativeWindowingEvent( HWND hwnd, UINT uMsg, W
                 }
             }
             break;
+		////////////////////
+		case WM_IME_CHAR:
+		{
+			WPARAM key = wParam;
+            LPARAM tmp = lParam;
+			getEventQueue()->charPress(key, eventTime);
+		}
+		break;
+		case WM_CHAR:
+		{
+			WPARAM key = wParam;
+            LPARAM tmp = lParam;
+			getEventQueue()->charPress(key, eventTime);
+		}
+		break;
+		////////////////////
 
         ////////////////////
         case WM_KEYDOWN    :
