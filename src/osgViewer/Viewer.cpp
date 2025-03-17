@@ -296,7 +296,9 @@ void Viewer::take(osg::View& rhs)
         _eventVisitor->setActionAdapter(this);
         _eventVisitor->setFrameStamp(_frameStamp.get());
 
+        _preUpdateOperations = rhs_viewer->_preUpdateOperations;
         _updateOperations = rhs_viewer->_updateOperations;
+        _pstUpdateOperations = rhs_viewer->_pstUpdateOperations;
         _updateVisitor = rhs_viewer->_updateVisitor;
 
         _realizeOperation = rhs_viewer->_realizeOperation;
@@ -1149,6 +1151,9 @@ void Viewer::updateTraversal()
     _updateVisitor->setFrameStamp(getFrameStamp());
     _updateVisitor->setTraversalNumber(getFrameStamp()->getFrameNumber());
 
+    if (_preUpdateOperations.valid())
+        _preUpdateOperations->runOperations(this);
+
     _scene->updateSceneGraph(*_updateVisitor);
 
     // if we have a shared state manager prune any unused entries
@@ -1214,6 +1219,9 @@ void Viewer::updateTraversal()
     }
 
     updateSlaves();
+
+    if (_pstUpdateOperations.valid())
+        _pstUpdateOperations->runOperations(this);
 
     if (getViewerStats() && getViewerStats()->collectStats("update"))
     {

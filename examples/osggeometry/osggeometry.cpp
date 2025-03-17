@@ -726,6 +726,7 @@ int main(int, char **)
     //osgDB::writeNodeFile(*root,"geometry.osgt");
 
     osgViewer::Viewer viewer;
+    viewer.setThreadingModel(viewer.SingleThreaded);
 
     // add model to viewer.
     viewer.setSceneData( root );

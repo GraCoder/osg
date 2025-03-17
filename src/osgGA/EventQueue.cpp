@@ -431,6 +431,18 @@ osgGA::GUIEventAdapter* EventQueue::keyRelease(int key, double time, int unmodif
     return event;
 }
 
+osgGA::GUIEventAdapter* osgGA::EventQueue::charPress(int key, double time)
+{
+	GUIEventAdapter* event = new GUIEventAdapter(*_accumulateEventState);
+	event->setEventType(GUIEventAdapter::CHAR);
+	event->setKey(key);
+	event->setTime(time);
+
+	addEvent(event);
+
+	return event;
+}
+
 
 GUIEventAdapter* EventQueue::touchBegan(unsigned int id, GUIEventAdapter::TouchPhase phase, float x, float y, double time)
 {
