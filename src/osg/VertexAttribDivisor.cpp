@@ -10,6 +10,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * OpenSceneGraph Public License for more details.
 */
+
 #include <osg/VertexAttribDivisor>
 #include <osg/GLExtensions>
 #include <osg/State>
@@ -40,3 +41,4 @@ void VertexAttribDivisor::apply(State& state) const
         extensions->glVertexAttribDivisor( _index, _divisor );
     }
 }
+
