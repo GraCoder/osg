@@ -141,7 +141,8 @@ class OSG_EXPORT Array : public BufferData
             _dataType(dataType),
             _binding(binding),
             _normalize(false),
-            _preserveDataType(false) {}
+            _preserveDataType(false),
+            _dataDivisor(0) {}
 
        Array(const Array& array,const CopyOp& copyop=CopyOp::SHALLOW_COPY):
             BufferData(array,copyop),
@@ -150,7 +151,8 @@ class OSG_EXPORT Array : public BufferData
             _dataType(array._dataType),
             _binding(array._binding),
             _normalize(array._normalize),
-            _preserveDataType(array._preserveDataType) {}
+            _preserveDataType(array._preserveDataType),
+            _dataDivisor(array._dataDivisor) {}
 
         virtual bool isSameKindAs(const Object* obj) const { return dynamic_cast<const Array*>(obj)!=NULL; }
         virtual const char* libraryName() const { return "osg"; }
@@ -172,6 +174,9 @@ class OSG_EXPORT Array : public BufferData
         Type getType() const { return _arrayType; }
         GLint getDataSize() const { return _dataSize; }
         GLenum getDataType() const { return _dataType; }
+
+        GLuint getDataDivisor() const { return _dataDivisor; }
+        void setDataDivisor(unsigned int divisor) { _dataDivisor = static_cast<GLuint>(divisor); }
 
         virtual osg::Array* asArray() { return this; }
         virtual const osg::Array* asArray() const { return this; }
@@ -225,6 +230,7 @@ class OSG_EXPORT Array : public BufferData
         Type    _arrayType;
         GLint   _dataSize;
         GLenum  _dataType;
+        GLuint  _dataDivisor;
         Binding _binding;
         bool    _normalize;
         bool    _preserveDataType;
