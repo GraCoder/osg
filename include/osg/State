@@ -1221,9 +1221,10 @@ class OSG_EXPORT State : public Referenced
                 if (setActiveTextureUnit(unit))
                 {
                     ms.last_applied_value = enabled;
-
+#if OSG_GL2_FEATURES == 1 || OSG_GL1_FEATURES || defined(OSG_GLES2_AVAILABLE)
                     if (enabled) glEnable(mode);
                     else glDisable(mode);
+#endif
 
                     if (_checkGLErrors==ONCE_PER_ATTRIBUTE) checkGLErrors(mode);
 
