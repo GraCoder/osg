@@ -127,6 +127,22 @@ public:
     vas->unbindVertexBufferObject();
     vas->unbindElementBufferObject();
   }
+
+  osg::VertexArrayState* createVertexArrayStateImplementation(osg::RenderInfo& renderInfo) const override
+  {
+    osg::State* state = renderInfo.getState();
+
+    osg::VertexArrayState* vas = new osg::VertexArrayState(state);
+
+    vas->assignVertexAttribArrayDispatcher(3);
+
+    if (state->useVertexArrayObject(_useVertexArrayObject)) {
+      vas->generateVertexArrayObject();
+    }
+    else {
+    }
+    return vas;
+  }
 };
 
 class FontTexture : public osg::Texture2D {
