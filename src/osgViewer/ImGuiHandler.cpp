@@ -3,10 +3,10 @@
 #include <stdio.h>
 
 #include <osg/BlendEquation>
+#include <osg/BlendFunc>
+#include <osg/Depth>
 #include <osg/GLDefines>
 #include <osg/Geometry>
-#include <osg/Depth>
-#include <osg/BlendFunc>
 #include <osg/Texture2D>
 
 #include <osgDB/FileUtils>
@@ -62,6 +62,7 @@ class UIRect : public osg::Drawable {
   osg::ref_ptr<osg::ByteArray> _vertex;
   osg::ref_ptr<osg::DrawElementsUShort> _ele;
   std::vector<std::tuple<int, int, osg::Vec4i>> _pris;
+
 public:
   UIRect()
   {
@@ -87,12 +88,9 @@ public:
 
   void allocatePrimitves(int sz) { _pris.resize(sz); }
 
-  void setPrimitive(int idx, int offset, int num, const osg::Vec4i &scissor)
-  {
-    _pris[idx] = std::make_tuple(offset, num, scissor);
-  }
+  void setPrimitive(int idx, int offset, int num, const osg::Vec4i &scissor) { _pris[idx] = std::make_tuple(offset, num, scissor); }
 
-  void drawImplementation(osg::RenderInfo &renderInfo) const 
+  void drawImplementation(osg::RenderInfo &renderInfo) const
   {
     auto state = renderInfo.getState();
 
@@ -104,19 +102,21 @@ public:
     auto contextId = renderInfo.getContextID();
 
     auto vbo = _vertex->getOrCreateGLBufferObject(contextId);
-    if(vbo->isDirty()) vbo->compileBuffer();
+    if (vbo->isDirty())
+      vbo->compileBuffer();
     vas->bindVertexBufferObject(vbo);
     vas->setVertexAttribArray(*state, 0, 2, GL_FLOAT, sizeof(ImDrawVert), 0);
     vas->setVertexAttribArray(*state, 1, 4, GL_UNSIGNED_BYTE, sizeof(ImDrawVert), (GLvoid *)offsetof(ImDrawVert, col), true);
     vas->setVertexAttribArray(*state, 2, 2, GL_FLOAT, sizeof(ImDrawVert), (GLvoid *)offsetof(ImDrawVert, uv));
 
     auto ebo = _ele->getOrCreateGLBufferObject(contextId);
-    if (ebo->isDirty()) ebo->compileBuffer();
+    if (ebo->isDirty())
+      ebo->compileBuffer();
     vas->bindElementBufferObject(ebo);
 
     vas->applyDisablingOfVertexAttributes(*state);
 
-    for(int i = 0; i < _pris.size(); i++) {
+    for (int i = 0; i < _pris.size(); i++) {
       int oft, count;
       osg::Vec4i scissor;
       std::tie(oft, count, scissor) = _pris[i];
@@ -128,18 +128,17 @@ public:
     vas->unbindElementBufferObject();
   }
 
-  osg::VertexArrayState* createVertexArrayStateImplementation(osg::RenderInfo& renderInfo) const override
+  osg::VertexArrayState *createVertexArrayStateImplementation(osg::RenderInfo &renderInfo) const override
   {
-    osg::State* state = renderInfo.getState();
+    osg::State *state = renderInfo.getState();
 
-    osg::VertexArrayState* vas = new osg::VertexArrayState(state);
+    osg::VertexArrayState *vas = new osg::VertexArrayState(state);
 
     vas->assignVertexAttribArrayDispatcher(3);
 
     if (state->useVertexArrayObject(_useVertexArrayObject)) {
       vas->generateVertexArrayObject();
-    }
-    else {
+    } else {
     }
     return vas;
   }
@@ -147,6 +146,7 @@ public:
 
 class FontTexture : public osg::Texture2D {
   mutable unsigned char *_texData = nullptr;
+
 public:
   FontTexture(int w, int h, unsigned char *texData)
     : _texData(texData)
@@ -158,18 +158,15 @@ public:
     setFilter(osg::Texture::MIN_FILTER, osg::Texture::LINEAR);
   }
 
-  ~FontTexture() 
+  ~FontTexture()
   {
-    if(_texData) {
+    if (_texData) {
       IM_FREE(_texData);
       _texData = nullptr;
     }
   }
 
-  void apply(osg::State &state) const 
-  { 
-    osg::Texture2D::apply(state);
-  }
+  void apply(osg::State &state) const { osg::Texture2D::apply(state); }
 };
 
 static ImGuiKey ConvertFromOSGKey(int key)
@@ -210,15 +207,19 @@ static ImGuiKey ConvertFromOSGKey(int key)
 
 class ImGuiBegUpdate : public osg::Operation {
   ImGuiHandler *_handler = nullptr;
+
 public:
-  ImGuiBegUpdate(ImGuiHandler *handler) : _handler(handler){};
+  ImGuiBegUpdate(ImGuiHandler *handler)
+    : _handler(handler){};
   void operator()(osg::Object *) { ImGui::NewFrame(); }
 };
 
 class ImGuiEndUpdate : public osg::Operation {
   ImGuiHandler *_handler = nullptr;
+
 public:
-  ImGuiEndUpdate(ImGuiHandler *handler) : _handler(handler){};
+  ImGuiEndUpdate(ImGuiHandler *handler)
+    : _handler(handler){};
   void operator()(osg::Object *)
   {
     ImGui::EndFrame();
@@ -243,8 +244,8 @@ public:
     auto geode = _handler->getUiGroup(frm);
 
     state->apply(geode->getStateSet());
-    for(uint32_t i = 0; i < geode->getNumDrawables(); i++) {
-      auto d = geode->getDrawable(i); 
+    for (uint32_t i = 0; i < geode->getNumDrawables(); i++) {
+      auto d = geode->getDrawable(i);
       if (!d->getNodeMask())
         continue;
       d->draw(renderInfo);
@@ -288,7 +289,7 @@ ImGuiHandler::ImGuiHandler()
     }
 
     {
-      auto blend = new osg::BlendFunc; 
+      auto blend = new osg::BlendFunc;
       ss->setAttributeAndModes(blend, osg::StateAttribute::ON);
     }
 
@@ -307,7 +308,7 @@ ImGuiHandler::~ImGuiHandler()
   }
 }
 
-void ImGuiHandler::setFont(const std::string fontFile) 
+void ImGuiHandler::setFont(const std::string fontFile)
 {
   ImGuiIO &io = ImGui::GetIO();
 
@@ -322,7 +323,7 @@ void ImGuiHandler::setFont(const std::string fontFile)
         break;
       }
     }
-  } else{
+  } else {
     if (osgDB::fileExists(fontFile)) {
       io.Fonts->Clear();
       font = io.Fonts->AddFontFromFileTTF(fontFile.c_str(), 21.0f, NULL, io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
@@ -433,7 +434,7 @@ bool ImGuiHandler::handle(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAdap
   return false;
 }
 
-void ImGuiHandler::setRenderData() 
+void ImGuiHandler::setRenderData()
 {
   auto io = ImGui::GetIO();
   auto draw = ImGui::GetDrawData();
@@ -445,11 +446,11 @@ void ImGuiHandler::setRenderData()
   draw->ScaleClipRects(io.DisplayFramebufferScale);
 
   auto grp = getUiGroup(_frameNum);
-  if(grp->getNumDrawables() < uint32_t(draw->CmdListsCount)) {
-    int num = draw->CmdListsCount - grp->getNumDrawables(); 
+  if (grp->getNumDrawables() < uint32_t(draw->CmdListsCount)) {
+    int num = draw->CmdListsCount - grp->getNumDrawables();
     for (int i = 0; i < num; i++)
       grp->addChild(new UIRect);
-  } 
+  }
 
   for (uint32_t i = 0; i < grp->getNumDrawables(); i++)
     grp->getDrawable(i)->setNodeMask(0);
@@ -462,10 +463,9 @@ void ImGuiHandler::setRenderData()
     rect->setIndex(cmds->IdxBuffer.Size, cmds->IdxBuffer.Data);
 
     rect->allocatePrimitves(cmds->CmdBuffer.size());
-    for(int j = 0; j < cmds->CmdBuffer.size(); j++) {
+    for (int j = 0; j < cmds->CmdBuffer.size(); j++) {
       auto &cmd = cmds->CmdBuffer[j];
-      osg::Vec4i scissor(cmd.ClipRect.x, cmd.ClipRect.y, 
-        (uint16_t)(cmd.ClipRect.z - cmd.ClipRect.x), (uint16_t)(cmd.ClipRect.w - cmd.ClipRect.y));
+      osg::Vec4i scissor(cmd.ClipRect.x, cmd.ClipRect.y, (uint16_t)(cmd.ClipRect.z - cmd.ClipRect.x), (uint16_t)(cmd.ClipRect.w - cmd.ClipRect.y));
       rect->setPrimitive(j, cmd.IdxOffset * sizeof(ImDrawIdx), cmd.ElemCount, scissor);
     }
   }
@@ -482,8 +482,8 @@ void ImGuiHandler::initImGui()
   //--------------------create imgui context----------------------------------
   _imctx = ImGui::CreateContext();
 
-  ImGui::StyleColorsDark();
-  //ImGuiIO &io = ImGui::GetIO();
+  // ImGui::StyleColorsDark();
+  // ImGuiIO &io = ImGui::GetIO();
 
   refreshTexture();
 
@@ -512,25 +512,24 @@ void ImGuiHandler::initImGui()
   //}
 }
 
-void ImGuiHandler::resizeViewport() 
+void ImGuiHandler::resizeViewport()
 {
   _camera->setViewport(0, 0, _width, _height);
 
   auto m = osg::Matrixf::ortho2D(0, _width, _height, 0);
   auto vp = new osg::Viewport(0, 0, _width, _height);
-  for (int i = 0; i < 2; i++) 
-  {
+  for (int i = 0; i < 2; i++) {
     auto ss = _geodes[i]->getOrCreateStateSet();
     ss->getOrCreateUniform("prjMatrix", osg::Uniform::FLOAT_MAT4)->set(m);
     ss->setAttribute(vp);
   }
 }
 
-void ImGuiHandler::refreshTexture() 
+void ImGuiHandler::refreshTexture()
 {
   ImGuiIO &io = ImGui::GetIO();
 
-  if(!io.Fonts->IsBuilt())
+  if (!io.Fonts->IsBuilt())
     io.Fonts->Build();
 
   int width, height;
@@ -538,7 +537,7 @@ void ImGuiHandler::refreshTexture()
   io.Fonts->GetTexDataAsRGBA32(&texData, &width, &height);
   io.Fonts->TexPixelsRGBA32 = nullptr;
   auto tex = new FontTexture(width, height, texData);
-    for (int i = 0; i < 2; i++) {
+  for (int i = 0; i < 2; i++) {
     auto ss = _geodes[i]->getStateSet();
     ss->setTextureAttributeAndModes(0, tex);
     ss->getOrCreateUniform("tex", osg::Uniform::SAMPLER_2D)->set(0);
