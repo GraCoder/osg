@@ -134,7 +134,7 @@ int main(int argc, char** argv)
 
     {
       auto handler = new osgViewer::ImGuiHandler;
-      handler->setFont("");
+      handler->setFont();
 	    viewer.addEventHandler(handler);
     }
 
@@ -204,18 +204,20 @@ int main(int argc, char** argv)
 
       void operator()(osg::Node* node, osg::NodeVisitor* nv)
       {
-        //ImGui::SetWindowFontScale();
-        ImGui::Begin("hello \xe4\xb8\x96\xe7\x95\x8c");
-        ImGui::Text("This is some useful text.");
-        ImGui::Button("Button");
-        ImGui::SameLine();
-        ImGui::Text("counter = ");
-        ImGui::Text("Application average 3f ms/frame (1f FPS)");
-        static char ch[512];
-        if (ImGui::InputText("123", ch, 512)) {
-          printf("");
+        if (ImGui::GetCurrentContext()) {
+          //ImGui::SetWindowFontScale();
+          ImGui::Begin("hello \xe4\xb8\x96\xe7\x95\x8c");
+          ImGui::Text("This is some useful text.");
+          ImGui::Button("Button");
+          ImGui::SameLine();
+          ImGui::Text("counter = ");
+          ImGui::Text("Application average 3f ms/frame (1f FPS)");
+          static char ch[512];
+          if (ImGui::InputText("123", ch, 512)) {
+            printf("");
+          }
+          ImGui::End();
         }
-        ImGui::End();
       }
     };
 

@@ -1,9 +1,9 @@
 #ifndef OSGVIEWER_IMGUIHANDLER
 #define OSGVIEWER_IMGUIHANDLER 1
 
-#include <osgViewer/Export>
 #include <osg/DisplaySettings>
 #include <osgGA/GUIEventHandler>
+#include <osgViewer/Export>
 
 struct ImGuiContext;
 
@@ -17,9 +17,9 @@ public:
 
   ~ImGuiHandler();
 
-  void setFont(const std::string fontFile);
+  void setFont(const std::string fontFile = "");
 
-  bool handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa);
+  bool handle(const osgGA::GUIEventAdapter &ea, osgGA::GUIActionAdapter &aa);
 
 public:
 
@@ -42,12 +42,12 @@ private:
   bool _initialized;
   int _width, _height;
 
-  ImGuiContext* _imctx = nullptr;
+  ImGuiContext *_imctx = nullptr;
 
   uint32_t _frameNum = 0;
   osg::ref_ptr<osg::Geode> _geodes[2];
 };
 
-}  // namespace osgViewer
+} // namespace osgViewer
 
 #endif
