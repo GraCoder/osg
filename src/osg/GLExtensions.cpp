@@ -748,6 +748,8 @@ GLExtensions::GLExtensions(unsigned int in_contextID):
     // ARB_shader_atomic_counters
     setGLExtensionFuncPtr(glGetActiveAtomicCounterBufferiv,  "glGetActiveAtomicCounterBufferiv" , validContext);
 
+    setGLExtensionFuncPtr(glClearBufferData, "glClearBufferData", validContext);
+
     // ARB_compute_shader
     setGLExtensionFuncPtr(glDispatchCompute,  "glDispatchCompute" , validContext);
 
