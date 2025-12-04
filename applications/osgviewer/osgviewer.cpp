@@ -200,15 +200,24 @@ int main(int argc, char** argv)
     loadedModel = grp;
 
     class xxUpdate : public osg::NodeCallback {
-    public:
+      osg::ref_ptr<osg::Group> _grp;
 
-      void operator()(osg::Node* node, osg::NodeVisitor* nv)
+    public:
+      xxUpdate(osg::Group *grp)
+        : _grp(grp)
+      {
+      }
+
+      void operator()(osg::Node *node, osg::NodeVisitor *nv)
       {
         if (ImGui::GetCurrentContext()) {
-          //ImGui::SetWindowFontScale();
+          // ImGui::SetWindowFontScale();
           ImGui::Begin("hello \xe4\xb8\x96\xe7\x95\x8c");
           ImGui::Text("This is some useful text.");
-          ImGui::Button("Button");
+          if (ImGui::Button("Button")) {
+            auto geo = osg::createTexturedQuadGeometry({0, 0, 0}, {10, 0, 0}, {0, 10, 0});
+            _grp->addChild(geo);
+          }
           ImGui::SameLine();
           ImGui::Text("counter = ");
           ImGui::Text("Application average 3f ms/frame (1f FPS)");
@@ -221,7 +230,7 @@ int main(int argc, char** argv)
       }
     };
 
-    geo->addUpdateCallback(new xxUpdate);
+    grp->addUpdateCallback(new xxUpdate(grp));
     // optimize the scene graph, remove redundant nodes and state etc.
     osgUtil::Optimizer optimizer;
     optimizer.optimize(loadedModel);

@@ -145,11 +145,8 @@ public:
 };
 
 class FontTexture : public osg::Texture2D {
-  mutable unsigned char *_texData = nullptr;
-
 public:
   FontTexture(int w, int h, unsigned char *texData)
-    : _texData(texData)
   {
     auto img = new osg::Image;
     img->setImage(w, h, 1, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, texData, osg::Image::NO_DELETE);
@@ -160,10 +157,6 @@ public:
 
   ~FontTexture()
   {
-    if (_texData) {
-      IM_FREE(_texData);
-      _texData = nullptr;
-    }
   }
 
   void apply(osg::State &state) const { osg::Texture2D::apply(state); }
@@ -535,7 +528,6 @@ void ImGuiHandler::refreshTexture()
   int width, height;
   unsigned char *texData = nullptr;
   io.Fonts->GetTexDataAsRGBA32(&texData, &width, &height);
-  io.Fonts->TexPixelsRGBA32 = nullptr;
   auto tex = new FontTexture(width, height, texData);
   for (int i = 0; i < 2; i++) {
     auto ss = _geodes[i]->getStateSet();
