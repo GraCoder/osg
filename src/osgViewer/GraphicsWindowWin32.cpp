@@ -2695,14 +2695,12 @@ LRESULT GraphicsWindowWin32::handleNativeWindowingEvent( HWND hwnd, UINT uMsg, W
 		case WM_IME_CHAR:
 		{
 			WPARAM key = wParam;
-            LPARAM tmp = lParam;
 			getEventQueue()->charPress(key, eventTime);
 		}
 		break;
 		case WM_CHAR:
 		{
 			WPARAM key = wParam;
-            LPARAM tmp = lParam;
 			getEventQueue()->charPress(key, eventTime);
 		}
 		break;

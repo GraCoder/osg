@@ -2758,8 +2758,6 @@ void Uniform::apply(const GLExtensions* ext, GLint location) const
 {
     // OSG_NOTICE << "uniform at "<<location<<" "<<_name<< std::endl;
 
-    osg::ElapsedTime timer;
-
     GLsizei num = getNumElements();
     if( num < 1 ) return;
 
